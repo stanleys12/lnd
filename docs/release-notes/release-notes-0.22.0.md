@@ -53,6 +53,13 @@
   the reported network statistics such as total network capacity, channel
   count and max out degree.
 
+* [Fixed a bug](https://github.com/lightningnetwork/lnd/issues/10883) where
+  `lnd` refused to start if `protocol.custom-init`, `protocol.custom-nodeann`
+  or `protocol.custom-invoice` contained a feature bit that is already set by
+  default, such as bit 39 for onion messages. Such bits are now ignored, while
+  bits that conflict with the opposite bit of a default feature are still
+  rejected.
+
 # New Features
 
 ## Functional Enhancements

@@ -289,3 +289,34 @@ func TestUpdateFeatureSets(t *testing.T) {
 		})
 	}
 }
+
+// TestNewManagerCustomFeatures asserts that custom features which are already
+// set by default are accepted, while custom features that conflict with the
+// opposite bit of a default feature are rejected.
+func TestNewManagerCustomFeatures(t *testing.T) {
+	t.Parallel()
+
+	defaultMgr, err := newManager(Config{}, testSetDesc)
+	require.NoError(t, err)
+
+	cfg := Config{
+		CustomFeatures: map[Set][]lnwire.FeatureBit{
+			SetInit:    {lnwire.TLVOnionPayloadRequired},
+			SetNodeAnn: {lnwire.TLVOnionPayloadRequired},
+		},
+	}
+	m, err := newManager(cfg, testSetDesc)
+	require.NoError(t, err)
+	require.True(t, m.GetRaw(SetInit).Equals(defaultMgr.GetRaw(SetInit)))
+	require.True(t, m.GetRaw(SetNodeAnn).Equals(
+		defaultMgr.GetRaw(SetNodeAnn),
+	))
+
+	cfg = Config{
+		CustomFeatures: map[Set][]lnwire.FeatureBit{
+			SetInit: {lnwire.TLVOnionPayloadOptional},
+		},
+	}
+	_, err = newManager(cfg, testSetDesc)
+	require.ErrorIs(t, err, lnwire.ErrFeaturePairExists)
+}

@@ -239,9 +239,9 @@ func newManager(cfg Config, desc setDesc) (*Manager, error) {
 					set, set.Maximum())
 			}
 
+			// Already a default, setting it again is a no-op.
 			if raw.IsSet(custom) {
-				return nil, fmt.Errorf("feature bit: %v "+
-					"already set", custom)
+				continue
 			}
 
 			if err := raw.SafeSet(custom); err != nil {
